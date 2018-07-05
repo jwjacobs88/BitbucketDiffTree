@@ -15,8 +15,8 @@
 
 		function startObserving(callback) {
 			// select the target node
-			var targets = document.querySelectorAll('#pr-tab-content');
-			
+			var targets = document.querySelectorAll('.body');
+
 			// create an observer instance
 			_this.observer = new MutationObserver(function (mutations) {
 				mutations.forEach(function (mutation) {

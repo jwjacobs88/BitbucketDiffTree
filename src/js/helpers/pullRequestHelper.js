@@ -5,14 +5,14 @@
 
 		getPullRequestMetadata: function() {
 			var $body = $('body');
-			var oCurrentUser = $body.data('current-user');
-			var oCurrentRepo = $body.data('current-repo');
-			var oCurrentPr = $body.data('current-pr');
+			var oCurrentUser = $('.profile-link').data('user');
+			var oCurrentRepo = $('input[name="project_id"]').data('project-path');
+			var oCurrentPr = $('.merge-request').data('url');
 
 			var pullRequestModel = new PullRequestModel();
-			pullRequestModel.userId = oCurrentUser.uuid;
-			pullRequestModel.pullRequestId = oCurrentPr.localId;
-			pullRequestModel.repoFullSlug = oCurrentRepo.fullslug;
+			pullRequestModel.userId = oCurrentUser;
+			pullRequestModel.pullRequestId = oCurrentPr;
+			pullRequestModel.repoFullSlug = oCurrentRepo;
 
 			return pullRequestModel;
 		},
@@ -21,5 +21,5 @@
 
 	// Export via namespace
 	BDT.Helpers.PullRequestHelper = PullRequestHelper;
-	
+
 })(BDT.Models.PullRequestModel);

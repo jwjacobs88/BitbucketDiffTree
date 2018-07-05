@@ -1,6 +1,6 @@
 (function(){
-	'use trict';
-	
+	'use strict';
+
 	var PullRequestModel = function() {
 		var _this = this;
 

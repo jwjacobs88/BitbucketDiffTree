@@ -5,9 +5,9 @@
 
 		getAllSettings: function(fnCallback) {
 			chrome.storage.local.get([
-				'enableAlways', 
-				'useCompactMode', 
-				'version', 
+				'enableAlways',
+				'useCompactMode',
+				'version',
 				'diffTreeWidth',
 				'diffTreeHeight'
 			], function(settings) {
@@ -51,25 +51,24 @@
 
 		/**
 		 * Get the pull request status
-		 * Returns: An object of 
-		 * 	{ 
-		 *		fileIdentifier1: { isReviewed: true }, 
-		 *		fileIdentifier2: { isReviewed: false }, 
-		 *		... 
+		 * Returns: An object of
+		 * 	{
+		 *		fileIdentifier1: { isReviewed: true },
+		 *		fileIdentifier2: { isReviewed: false },
+		 *		...
 		 *	}
 		 */
 		getPullRequestStatus: function(oPullRequestModel, fnCallback) {
-			var key = 'userid_' + oPullRequestModel.userId 
-					+ '_prid_' + oPullRequestModel.pullRequestId 
+			var key = 'userid_' + oPullRequestModel.userId
+					+ '_prid_' + oPullRequestModel.pullRequestId
 					+ '_repo_' + oPullRequestModel.repoFullSlug;
-
-			chrome.storage.local.get(key, function(data) { 
+			chrome.storage.local.get(key, function(data) {
 				/* data is a json object of
 					{
-						key: { 
-							fileIdentifier1: { isReviewed: true }, 
-							fileIdentifier2: { isReviewed: false }, 
-							... 
+						key: {
+							fileIdentifier1: { isReviewed: true },
+							fileIdentifier2: { isReviewed: false },
+							...
 						}
 					}
 				*/
@@ -81,8 +80,8 @@
 		},
 
 		setPullRequestStatus: function(oPullRequestModel, sFileIdentifier, bValue, sContentHash, fnCallback) {
-			var key = 'userid_' + oPullRequestModel.userId 
-					+ '_prid_' + oPullRequestModel.pullRequestId 
+			var key = 'userid_' + oPullRequestModel.userId
+					+ '_prid_' + oPullRequestModel.pullRequestId
 					+ '_repo_' + oPullRequestModel.repoFullSlug;
 
 			//chrome.storage.local.remove(key);
@@ -108,7 +107,7 @@
 							console.log(chrome.runtime.lastError.message);
 							return;
 					}
-	
+
 					if (fnCallback) {
 						fnCallback.call(this, oData);
 					}
@@ -119,5 +118,5 @@
 
 	// Export via namespace
 	BDT.Helpers.LocalStorageHelper = LocalStorageHelper;
-	
+
 })();

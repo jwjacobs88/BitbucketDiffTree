@@ -40,7 +40,7 @@
 	 * 		...
 	 *  }
 	 */
-	var _oPullRequestFileStatuses; 
+	var _oPullRequestFileStatuses;
 
 	var _manifestData = chrome.runtime.getManifest();
 
@@ -48,7 +48,7 @@
 	var _settings = {};
 	LocalStorageHelper.getAllSettings(function(settings) {
 		_settings = settings;
-		
+
 		if (canApplyDiffTree()) {
 			tryToLoadDiffTreeTool();
 		}
@@ -69,23 +69,23 @@
 	});
 
 	$(function() {
-		_$pullRequestTabNavigation = $('#pullrequest-navigation, #compare-tabs');
+		_$pullRequestTabNavigation = $('#diffs');
 		_oPullRequestModel = PullRequestHelper.getPullRequestMetadata();
 		bindEvents();
 	});
 
 	function init() {
-		_$pullRequestDiff = $('#pullrequest #pullrequest-diff, #branch-detail #compare-diff-content, #commit, #create-pullrequest #diff, #update-pullrequest #diff, #branch-compare #compare-diff-content');
-		_$pullRequestDiffCompare = $('#pullrequest #compare, #branch-detail #changeset-diff.main, #commit #changeset-diff.main, #create-pullrequest #changeset-diff.main, #update-pullrequest #changeset-diff.main, #branch-compare #changeset-diff.main');
-		_$commitFilesSummary = _$pullRequestDiff.find('ul.commit-files-summary');
-		_$diffSections = _$pullRequestDiff.find('section.iterable-item.bb-udiff');
+		_$pullRequestDiff = $('.merge-request-details');
+		_$pullRequestDiffCompare = $('.files');
+		_$commitFilesSummary = _$pullRequestDiff.find('.files');
+		_$diffSections = _$pullRequestDiff.find('.diff-file');
 	}
 
 	function canApplyDiffTree() {
-		return $('.diff').length > 0 // for pull request page
-			|| $('#compare-content').length > 0 // for create pull request page
-			|| $('#compare-tabs').length > 0 // for view branch page
-			|| $('#commit').length > 0; // for commit page
+		return $('.merge-request-details').length > 0 // for pull request page
+			// || $('#compare-content').length > 0 // for create pull request page
+			// || $('#compare-tabs').length > 0 // for view branch page
+			// || $('#commit').length > 0; // for commit page
 	}
 
 	function tryToLoadDiffTreeTool() {
@@ -102,14 +102,14 @@
 	}
 
 	function enableDiffTreeOnLoad() {
-		if ($('ul.commit-files-summary').length > 0) {
+		if ($('.diffs.tab-pane.active').length > 0) {
 			enableDiffTree(true);
 			clearInterval(_interval);
 		}
 	}
 
 	function disableDiffTreeOnLoad() {
-		if ($('ul.commit-files-summary').length > 0) {
+		if ($('.diffs.tab-pane.active').length > 0) {
 			clearInterval(_interval);
 		}
 	}
@@ -120,7 +120,7 @@
 		if ($('#diffTreeContainer').length === 0) {
 			init();
 
-			_$commitFilesSummary.hide();
+			//_$commitFilesSummary.hide();
 			_$diffSections.hide();
 
 			buildDiffTreeAsync(_settings.useCompactMode, function() {
@@ -257,8 +257,8 @@
 	}
 
 	function getContentHash(sFileIdentifier) {
-		var sDiffContentParentSelector = '.bb-udiff[data-identifier="' + sFileIdentifier + '"]'
-		var sDiffContent = $(sDiffContentParentSelector).find('.udiff-line:not(.common) .source').toArray().map(d => d.textContent).join('\n');
+		var sDiffContentParentSelector = '.diff-file[id="' + sFileIdentifier + '"]'
+		var sDiffContent = $(sDiffContentParentSelector).find('.diff-line-num:not(.old_line) .match').toArray().map(d => d.textContent).join('\n');
 
 		return HashingHelper.getHash(sDiffContent);
 	}
@@ -281,7 +281,7 @@
 	}
 
 	function updateFileReviewStatus($node, bIsReviewed) {
-		var $icon = $node.find('.fileIcon');
+		var $icon = $node.find('.fa-circle-o');
 		var title = HtmlHelper.getMarkAsReviewedCheckboxTitle(bIsReviewed);
 		setNodeReviewStatus($node, bIsReviewed);
 		$icon.attr('title', title);
@@ -296,33 +296,32 @@
 			function(event, data) {
 				$('#' + data.node.id)
 					.find('> a .jstree-node-icon')
-					.removeClass('aui-iconfont-devtools-folder-closed')
-					.addClass('aui-iconfont-devtools-folder-open');
+					.removeClass('fa-folder')
+					.addClass('fa-folder-open');
 			});
 
 		_$treeDiff.on('after_close.jstree',
 			function(event, data) {
 				$('#' + data.node.id)
 					.find('> a .jstree-node-icon')
-					.removeClass('aui-iconfont-devtools-folder-open')
-					.addClass('aui-iconfont-devtools-folder-closed');
+					.removeClass('fa-folder-open')
+					.addClass('fa-folder');
 			});
 
 		_$treeDiff.on('select_node.jstree',
 			function(event, data) {
-				var $node = $('#' + data.node.id);
-				var fileIdentifier = $node.data('file-identifier');
+				var fileIdentifier = data.node.data['fileIdentifier'];
+				var $node = $('div.diff-file.file-holder[id="' + fileIdentifier + '"]');
+
 				if (fileIdentifier) {
 					// Hide the current section
 					_$diffSections.hide();
 
 					// Show the selected section
-					var sectionId = decodeURIComponent(fileIdentifier.replace('#', ''));
-					var $section = $('section[id*="' + sectionId + '"]');
-					$section.show();
+					$node.show();
 
 					// Set the treeDiff height based on the height of the selected section
-					var height = Math.max($section.height() - 100, 650);
+					var height = Math.max($node.height() - 100, 650);
 					//_$treeDiff.height(height);
 
 					// Set the url hash for the selected file
@@ -358,7 +357,7 @@
 
 	function buildDiffTreeAsync(bIsCompactMode, fnCallback) {
 		bIsCompactMode = bIsCompactMode || false;
-		
+
 		LocalStorageHelper.getPullRequestStatus(_oPullRequestModel, function(data) {
 			_oPullRequestFileStatuses = data;
 			_treeObject = populateDiffTreeObject();
@@ -366,12 +365,12 @@
 			if (bIsCompactMode) {
 				_treeObject = compactEmptyFoldersDiffTreeObject(_treeObject);
 			}
-			
+
 			attachDiffTreeHtml(_treeObject);
 			initializeJsTree();
 			bindJsTreeEvents();
 			updateReviewStatusesForAllNodes();
-			
+
 			if (fnCallback) {
 				fnCallback();
 			}
@@ -382,15 +381,14 @@
 		var treeObject = new TreeNodeModel('root', 0);
 
 		_$commitFilesSummary
-			.find('li.iterable-item')
+			.find('div.diff-file')
 			.each(function() {
 				var $self = $(this);
-				var fileName = $self.data('file-identifier');
-				var link = $self.find('a').attr('href');
+				var fileName = $self.find('strong.file-title-name').data('original-title');
+				var link = $self.attr('id');
 				var folders = fileName.split('/');
 				var maxLevel = folders.length;
 				var tempObject = treeObject;
-
 				folders.forEach(function(folder, index) {
 					var item = tempObject.children[folder];
 
@@ -429,8 +427,6 @@
 					tempObject = tempObject.children[folder];
 				});
 			});
-		
-		//console.log(treeObject);
 
 		return treeObject;
 	}
@@ -451,7 +447,7 @@
 		}
 
 		if (oTreeNode.isRoot() === false &&
-			oTreeNode.data.folderCount === 1 && 
+			oTreeNode.data.folderCount === 1 &&
 			oTreeNode.data.fileCount === 0) {
 
 			var compactNodeName = parentNode.data.name;
@@ -489,8 +485,6 @@
 
 		diffTreeContainer += '<div class="splitter-horizontal"></div>';
 
-		diffTreeContainer += HtmlHelper.buildDiffTreeFooterPanelHtml();
-
 		diffTreeContainer += '</div>'; // end of #difTreeContainer
 
 		var $diffTreeWrapper = $('<div id="diffTreeWrapper" />');
@@ -499,7 +493,7 @@
 			.append(diffTreeContainer)
 			.append('<div class="splitter"></div>')
 			.append(_$pullRequestDiffCompare);
-		
+
 		_$pullRequestDiffCompare.addClass('diff-tree-aside');
 		_$diffTreeWrapper = $('#diffTreeWrapper');
 		_$diffTreeContainer = $('#diffTreeContainer');
@@ -618,7 +612,7 @@
 
 	function getFileCommentCount($iterableItem) {
 		var count = 0;
-		var $countBadge = $iterableItem.find('.count-badge');
+		var $countBadge = $iterableItem.find('.note');
 
 		if ($countBadge.length === 1) {
 			count = parseInt($countBadge.find('.count').text());
@@ -631,8 +625,8 @@
 		var hash = window.location.hash;
 		showFirstFile();
 
-		if (hash.indexOf('#chg-') === 0) { // file nagivation
-			var $node = $('li[data-file-identifier*="' + hash + '"]');
+		if (hash.indexOf('#') === 0) { // file nagivation
+			var $node = $('li[data-blob-diff-path*="' + hash + '"]');
 			_treeHelper.selectNode($node);
 		} else if (hash.indexOf('#comment-') === 0) { // comment navigation
 			var $comment = $(hash);
@@ -643,8 +637,8 @@
 	function newCommentAdded(target, addedNode) {
 		setTimeout(function () {
 			var $addedNode = $(addedNode);
-			if (!$addedNode.hasClass('comment')) {
-				$addedNode = $addedNode.find('li.comment:first-child');
+			if (!$addedNode.hasClass('note')) {
+				$addedNode = $addedNode.find('.note:first-child');
 			}
 
 			navigateToCommentNode($addedNode);
@@ -723,7 +717,7 @@
 		while ($parent.length > 0) {
 			var bIsReviewed = $parent.find('.jstree-children').children('.jstree-node').not('.isReviewed').length === 0;
 			setNodeReviewStatus($parent, bIsReviewed);
-			
+
 			$parent = $parent.parent().closest('.jstree-node');
 		}
 	}

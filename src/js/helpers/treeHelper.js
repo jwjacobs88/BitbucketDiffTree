@@ -10,7 +10,7 @@
 		 */
 		function getNodeId(obj) {
 			var nodeId;
-			
+
 			if (obj && obj instanceof jQuery) {
 				nodeId = obj.attr('id');
 			} else {
@@ -31,7 +31,7 @@
 
 		/**
 		 * Select a node
-		 * @param {object} obj	Node id or node DOM 
+		 * @param {object} obj	Node id or node DOM
 		 */
 		function selectNode(obj) {
 			var nodeId = getNodeId(obj);
@@ -41,12 +41,10 @@
 
 		function openParentNodes(nodeId) {
 			var parentNodeId = _$treeContainer.jstree(true).get_parent(nodeId);
-			console.log('before: ' + parentNodeId);
 			if (!parentNodeId || parentNodeId === '#') return;
 			if (_$treeContainer.jstree(true).is_open(parentNodeId)) return;
 
 			openParentNodes(parentNodeId);
-			console.log('after: ' + parentNodeId);
 			_$treeContainer.jstree(true).open_node(parentNodeId);
 		}
 
@@ -56,7 +54,7 @@
 
 		/**
 		 * Toggle a node
-		 * @param {object} obj	Node id or node DOM 
+		 * @param {object} obj	Node id or node DOM
 		 */
 		function toggleNode(obj) {
 			var nodeId = getNodeId(obj);
@@ -83,5 +81,5 @@
 
 	// Export via namespace
 	BDT.Helpers.TreeHelper = TreeHelper;
-	
+
 })();
