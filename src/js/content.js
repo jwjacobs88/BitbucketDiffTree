@@ -258,7 +258,9 @@
 
 	function getContentHash(sFileIdentifier) {
 		var sDiffContentParentSelector = '.diff-file[id="' + sFileIdentifier + '"]'
-		var sDiffContent = $(sDiffContentParentSelector).find('.diff-line-num:not(.old_line) .match').toArray().map(d => d.textContent).join('\n');
+		var sDiffContent = $(sDiffContentParentSelector).find(
+			'.diff-line-num:not(.old_line) .match'
+		).toArray().map(d => d.textContent).join('\n');
 
 		return HashingHelper.getHash(sDiffContent);
 	}
@@ -381,7 +383,7 @@
 		var treeObject = new TreeNodeModel('root', 0);
 
 		_$commitFilesSummary
-			.find('div.diff-file')
+			.find('div.diff-file:not(.preview-container)')
 			.each(function() {
 				var $self = $(this);
 				var fileName = $self.find('strong.file-title-name').data('original-title');
@@ -595,30 +597,20 @@
 	function getFileStatus($iterableItem) {
 		var fileStatus = null;
 
-		if ($iterableItem.hasClass('file-added')) {
+		if ($iterableItem.hasClass('ic-file-addition')) {
 			fileStatus = 0;
-		} else if ($iterableItem.hasClass('file-modified')) {
+		} else if ($iterableItem.hasClass('ic-file-modified')) {
 			fileStatus = 1;
-		} else if ($iterableItem.hasClass('file-removed')) {
+		} else if ($iterableItem.hasClass('ic-file-deletion')) {
 			fileStatus = 2;
-		} else if ($iterableItem.hasClass('file-mergeconflict')) {
-			fileStatus = 3;
-		} else if ($iterableItem.hasClass('file-renamed')) {
-			fileStatus = 4;
 		}
 
 		return fileStatus;
 	}
 
 	function getFileCommentCount($iterableItem) {
-		var count = 0;
-		var $countBadge = $iterableItem.find('.note');
-
-		if ($countBadge.length === 1) {
-			count = parseInt($countBadge.find('.count').text());
-		}
-
-		return count;
+		var $notes = $iterableItem.find('div.diff-comment-avatar-holders');
+		return $notes.length;
 	}
 
 	function navigateToNodeInHash() {

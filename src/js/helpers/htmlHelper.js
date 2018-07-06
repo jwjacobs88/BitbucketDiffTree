@@ -92,21 +92,15 @@
 		buildLozengeFileStatusHtml: function(iFileStatus) {
 			var sResult = '';
 			switch (iFileStatus) {
-				case 0: //file added
-					sResult = '<span class="fa-check-square fileStatus" original-title="Added">A</span>';
-					break;
-				case 1: //file modified
-					sResult = '<span class="fa-check-square fileStatus" original-title="Modified">M</span>';
-					break;
-				case 2: //file deleted
-					sResult = '<span class="fa-check-square fileStatus" original-title="Deleted">D</span>';
-					break;
-				case 3: //file conflicted
-					sResult = '<span class="fa-check-square fileStatus" original-title="Conflict: File modified in both source and destination">C</span>';
-					break;
-				case 4: //file renamed
-					sResult = '<span class="fa-check-square fileStatus" original-title="Renamed">R</span>';
-					break;
+			case 0: //file added
+				sResult = '<span class="badge badge-pill" original-title="Added">A</span>';
+				break;
+			case 1: //file modified
+				sResult = '<span class="badge badge-pill" original-title="Modified">M</span>';
+				break;
+			case 2: //file deleted
+				sResult = '<span class="badge badge-pill" original-title="Deleted">D</span>';
+				break;
 			}
 
 			return sResult;
@@ -114,12 +108,12 @@
 
 		buildCommentCountBadgeHtml: function(iCount) {
 			if (iCount && iCount > 0) {
-				return '<div class="count-badge">' +
-					'<span class="fa fa-comment-o">Comments</span>' +
-					'<span class="count">' +
-					iCount +
-					'</span>' +
-					'</div>';
+				return '<span class="fa-stack fa-1x">' +
+						'<i class="fa fa-comment-o fa-stack-1x" style="font-size:1.25em"></i>' +
+						'<strong class="fa-stack-1x" style="font-size:.7em">'+ 
+							iCount + 
+						'</strong>' +
+					'</span>';
 			}
 
 			return '';

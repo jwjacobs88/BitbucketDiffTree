@@ -1,4 +1,4 @@
-
+{
 	"name": "GitLab Diff Tree",
 	"description": "Extension to display diff tree for GitLab",
 	"version": "0.0.1",
